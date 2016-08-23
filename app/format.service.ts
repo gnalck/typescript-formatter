@@ -11,14 +11,14 @@ export class FormatService {
 
   }
 
-  format(input: string, options: FormatCodeOptions) {
+  format(input: string, options: FormatCodeOptions) : string {
     var rulesProvider = new (<any>ts).formatting.RulesProvider();
     rulesProvider.ensureUpToDate(options);
 
     var sourceFile = ts.createSourceFile("input", input, ScriptTarget.Latest);
     var edits : TextChange[] = (<any>ts).formatting.formatDocument(sourceFile, rulesProvider, options);
 
-    this.applyEdits(input, edits);
+    return this.applyEdits(input, edits);
   }
 
   applyEdits(text: string, edits: TextChange[]): string {

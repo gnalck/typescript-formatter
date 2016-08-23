@@ -1,2 +1,6 @@
 <h2>hi</h2>
-{{options.IndentSize}}
+<form #formatForm="ngForm" (ngSubmit)="format()">
+  <textarea [(ngModel)]="code"></textarea>
+  <button type="submit"></button>
+</form>
+<textarea [(ngModel)]="options.IndentSize"></textarea>
