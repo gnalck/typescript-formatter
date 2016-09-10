@@ -56,12 +56,8 @@ var FormatBox = React.createClass({
   handleTextChange: function(e) {
     e.preventDefault();
 
-    var text = e.target.value;
-    var formattedText = this.format(text, this.state.options);
-
     this.setState({
-      text: text,
-      formattedText: formattedText,
+      text: e.target.value,
     });
   },
 
@@ -80,11 +76,22 @@ var FormatBox = React.createClass({
     })
   },
 
+  handleSubmit: function(e) {
+    e.preventDefault();
+
+    var text = this.state.text;
+    var formattedText = this.format(text, this.state.options);
+
+    this.setState({
+      formattedText: formattedText,
+    });
+  },
+
   render: function() {
     return (
       <div className="formatBox">
         <h1>Typescript Formatter</h1>
-        <FormatText text={this.state.text} handleTextChange={this.handleTextChange} />
+        <FormatText text={this.state.text} handleTextChange={this.handleTextChange} handleSubmit={this.handleSubmit}/>
         <FormattedText formattedText={this.state.formattedText} />
         <FormatOptions options={this.state.options} handleOptionChange={this.handleOptionChange} />
       </div>
@@ -95,9 +102,10 @@ var FormatBox = React.createClass({
 var FormatText = React.createClass({
   render: function() {
     return (
-      <form className="FormatText" >
+      <form className="FormatText" onSubmit={this.props.handleSubmit}>
         <textarea type="text" placeholder=""
           value={this.props.text} onChange={this.props.handleTextChange} />
+        <input type="submit" value="Format" />
       </form>
     )
   }
