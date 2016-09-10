@@ -1,31 +1,26 @@
-var options =  {
-  IndentSize: 4,
-  TabSize: 4,
-  ConvertTabsToSpaces: true,
-  InsertSpaceAfterCommaDelimiter: true,
-  InsertSpaceAfterSemicolonInForStatements: true,
-  InsertSpaceBeforeAndAfterBinaryOperators: true,
-  InsertSpaceAfterKeywordsInControlFlowStatements: true,
-  InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
-  InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
-  InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
-  InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: false,
-  PlaceOpenBraceOnNewLineForFunctions: false,
-  PlaceOpenBraceOnNewLineForControlBlocks: false,
-};
+var formatCode = function(code, indentSize) {
+  var options =  {
+    BaseIndentSize: 0,
+    IndentSize: indentSize,
+    TabSize: indentSize,
+    NewLineCharacter: "\n",
+    ConvertTabsToSpaces: true,
+    IndentStyle: ts.IndentStyle.Block,
+    InsertSpaceAfterCommaDelimiter: true,
+    InsertSpaceAfterSemicolonInForStatements: true,
+    InsertSpaceBeforeAndAfterBinaryOperators: true,
+    InsertSpaceAfterKeywordsInControlFlowStatements: true,
+    InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+    InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
+    InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
+    InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: false,
+    InsertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces: false,
+    InsertSpaceAfterTypeAssertion: false,
+    PlaceOpenBraceOnNewLineForFunctions: false,
+    PlaceOpenBraceOnNewLineForControlBlocks: false,
+  }
 
-var FormatBox = React.createClass({
-  format: function(input, options)  {
-    var rulesProvider = new ts.formatting.RulesProvider();
-    rulesProvider.ensureUpToDate(options);
-
-    var sourceFile = ts.createSourceFile("input", input, ts.ScriptTarget.Latest);
-    var edits = ts.formatting.formatDocument(sourceFile, rulesProvider, options);
-
-    return this.applyEdits(input, edits);
-  },
-
-  applyEdits: function(text, edits) {
+  var applyEdits = function(text, edits) {
     // Apply edits in reverse on the existing text
     let result = text;
     for (let i = edits.length - 1; i >= 0; i--) {
@@ -47,106 +42,105 @@ var FormatBox = React.createClass({
       result = head + change.newText + tail;
     }
     return result;
-  },
+  };
 
+  var format = function(input, options)  {
+    var rulesProvider = new ts.formatting.RulesProvider();
+    rulesProvider.ensureUpToDate(options);
+
+    var sourceFile = ts.createSourceFile("input", input, ts.ScriptTarget.Latest);
+    var edits = ts.formatting.formatDocument(sourceFile, rulesProvider, options);
+
+    return applyEdits(input, edits);
+  };
+
+  return format(code, options);
+};
+
+var initText = `let  x= 5 ;
+if   (!! x){
+       console .log ( 'hello world!' );
+}`;
+
+var FormatForm = React.createClass({
   getInitialState: function() {
-    return {text: '', formattedText: '', options: options};
+    return {
+      formattedCode: '',
+      indentSize: 4,
+      code: initText,
+    };
   },
 
-  handleTextChange: function(e) {
-    e.preventDefault();
-
+  handleCodeChange: function(e) {
     this.setState({
-      text: e.target.value,
+      code: e.target.value,
     });
   },
 
-  handleOptionChange: function(e) {
-    e.stopPropogation();
-
-    let newValue =
-      (e.target.type === "checkbox") ? e.target.checked : e.target.value;
-
-    var newoptions = React.addons.update(this.state.options, {
-      [e.target.name]: {$set: newValue }
-    });
-
+  handleIndentChange: function(e) {
     this.setState({
-      options: newoptions
-    })
+      indentSize: e.target.value
+    });
   },
 
   handleSubmit: function(e) {
     e.preventDefault();
 
-    var text = this.state.text;
-    var formattedText = this.format(text, this.state.options);
+    var formattedCode = formatCode(this.state.code, this.state.indentSize);
 
     this.setState({
-      formattedText: formattedText,
-    });
+      formattedCode: formattedCode
+    })
   },
 
   render: function() {
+    var numRows = this.state.code.split('\n').length;
+
     return (
-      <div className="formatBox">
+      <div className="col-md-5 col-md-offset-3">
         <h1>Typescript Formatter</h1>
-        <FormatText text={this.state.text} handleTextChange={this.handleTextChange} handleSubmit={this.handleSubmit}/>
-        <FormattedText formattedText={this.state.formattedText} />
-        <FormatOptions options={this.state.options} handleOptionChange={this.handleOptionChange} />
+        <form className="formatForm" onSubmit={this.handleSubmit}>
+          <textarea rows={numRows} className="form-control" name="code" value={this.state.code} onChange={this.handleCodeChange} />
+          <FormatIndent indentSize={this.state.indentSize} handleIndentChange={this.handleIndentChange}/>
+          <input type="submit" className="btn btn-primary center-block" value="Format"/>
+        </form>
+        <FormattedCode formattedCode={this.state.formattedCode} />
       </div>
     )
   }
 });
 
-var FormatText = React.createClass({
+var FormatIndent = React.createClass({
   render: function() {
     return (
-      <form className="FormatText" onSubmit={this.props.handleSubmit}>
-        <textarea type="text" placeholder=""
-          value={this.props.text} onChange={this.props.handleTextChange} />
-        <input type="submit" value="Format" />
-      </form>
-    )
-  }
-});
-
-var FormattedText = React.createClass({
-  render: function() {
-    return (
-      <textarea type="text" value={this.props.formattedText} readOnly />
+      <div className="">
+        <select className="form-control" value={this.props.indentSize} onChange={this.props.handleIndentChange} >
+          <option value="4">4 Space Tab</option>
+          <option value="3">3 Space Tab</option>
+          <option value="2">2 Space Tab</option>
+        </select>
+      </div>
     )
   }
 })
 
-var FormatOptions = React.createClass({
+var FormattedCode = React.createClass({
   render: function() {
-    var optionNodes = _.map(this.props.options, (v, k) => {
-      if (typeof(v) === "boolean") {
-        return (
-          <div>
-            <label>{k}</label>
-            <input type="checkbox" key={k} name={k} checked={v} onChange={this.props.handleOptionChange}/>
-          </div>
-        )
-      }
+    var numRows = this.props.formattedCode.split('\n').length;
+
+    if (this.props.formattedCode) {
       return (
         <div>
-          <label>{k}</label>
-          <input type="text" key={k} name={k} value={v} onChange={this.props.handleOptionChange} />
+          <textarea name="formattedCode" rows={numRows} className="form-control" value={this.props.formattedCode} readOnly />
         </div>
       );
-    });
+    }
 
-    return (
-      <div className="formatOptions">
-        {optionNodes}
-      </div>
-    );
+    return <div></div>;
   }
 });
 
 ReactDOM.render(
-  <FormatBox />,
+  <FormatForm />,
   document.getElementById('content')
 );
