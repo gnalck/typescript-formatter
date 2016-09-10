@@ -1,8 +1,6 @@
 var options =  {
   IndentSize: 4,
   TabSize: 4,
-  IndentStyle: ts.IndentStyle.Smart,
-  NewLineCharacter: '\n',
   ConvertTabsToSpaces: true,
   InsertSpaceAfterCommaDelimiter: true,
   InsertSpaceAfterSemicolonInForStatements: true,
@@ -67,26 +65,38 @@ var FormatBox = React.createClass({
     });
   },
 
+  handleOptionChange: function(e) {
+    e.stopPropogation();
+
+    let newValue =
+      (e.target.type === "checkbox") ? e.target.checked : e.target.value;
+
+    var newoptions = React.addons.update(this.state.options, {
+      [e.target.name]: {$set: newValue }
+    });
+
+    this.setState({
+      options: newoptions
+    })
+  },
+
   render: function() {
     return (
       <div className="formatBox">
         <h1>Typescript Formatter</h1>
-        <FormatText
-          text={this.state.text}
-          handleTextChange={this.handleTextChange} />
-        <FormatOptions options={this.state.options} />
+        <FormatText text={this.state.text} handleTextChange={this.handleTextChange} />
         <FormattedText formattedText={this.state.formattedText} />
+        <FormatOptions options={this.state.options} handleOptionChange={this.handleOptionChange} />
       </div>
     )
   }
 });
 
 var FormatText = React.createClass({
-
   render: function() {
     return (
       <form className="FormatText" >
-        <input type="text" placeholder=""
+        <textarea type="text" placeholder=""
           value={this.props.text} onChange={this.props.handleTextChange} />
       </form>
     )
@@ -96,15 +106,34 @@ var FormatText = React.createClass({
 var FormattedText = React.createClass({
   render: function() {
     return (
-      <input type="text" value={this.props.formattedText} readOnly />
+      <textarea type="text" value={this.props.formattedText} readOnly />
     )
   }
 })
 
 var FormatOptions = React.createClass({
   render: function() {
+    var optionNodes = _.map(this.props.options, (v, k) => {
+      if (typeof(v) === "boolean") {
+        return (
+          <div>
+            <label>{k}</label>
+            <input type="checkbox" key={k} name={k} checked={v} onChange={this.props.handleOptionChange}/>
+          </div>
+        )
+      }
+      return (
+        <div>
+          <label>{k}</label>
+          <input type="text" key={k} name={k} value={v} onChange={this.props.handleOptionChange} />
+        </div>
+      );
+    });
+
     return (
-      <h2> hi</h2>
+      <div className="formatOptions">
+        {optionNodes}
+      </div>
     );
   }
 });
