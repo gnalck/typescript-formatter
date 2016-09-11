@@ -97,10 +97,14 @@ var FormatForm = React.createClass({
     var numRows = this.state.code.split('\n').length;
 
     return (
-      <div className="col-md-5 col-md-offset-3">
-        <h1>Typescript Formatter</h1>
+      <div className="container">
+        <div className="page-header">
+          <h1>Typescript Formatter</h1>
+        </div>
         <form className="formatForm" onSubmit={this.handleSubmit}>
-          <textarea rows={numRows} className="form-control" name="code" value={this.state.code} onChange={this.handleCodeChange} />
+          <div className="form-group">
+            <textarea rows={numRows} className="form-control" name="code" value={this.state.code} onChange={this.handleCodeChange} />
+          </div>
           <FormatIndent indentSize={this.state.indentSize} handleIndentChange={this.handleIndentChange}/>
           <input type="submit" className="btn btn-primary center-block" value="Format"/>
         </form>
@@ -113,7 +117,7 @@ var FormatForm = React.createClass({
 var FormatIndent = React.createClass({
   render: function() {
     return (
-      <div className="">
+      <div className="form-group">
         <select className="form-control" value={this.props.indentSize} onChange={this.props.handleIndentChange} >
           <option value="4">4 Space Tab</option>
           <option value="3">3 Space Tab</option>
@@ -130,7 +134,7 @@ var FormattedCode = React.createClass({
 
     if (this.props.formattedCode) {
       return (
-        <div>
+        <div className="formattedCode">
           <textarea name="formattedCode" rows={numRows} className="form-control" value={this.props.formattedCode} readOnly />
         </div>
       );
