@@ -62,7 +62,7 @@ if   (!! x){
        console .log ( 'hello world!' );
 }`;
 
-var FormatForm = React.createClass({
+var FormatBox = React.createClass({
   getInitialState: function() {
     return {
       formattedCode: '',
@@ -94,23 +94,36 @@ var FormatForm = React.createClass({
   },
 
   render: function() {
-    var numRows = this.state.code.split('\n').length;
-
     return (
-      <div className="container">
+      <div className="formatBox container">
         <div className="page-header">
           <h1>Typescript Formatter</h1>
         </div>
-        <form className="formatForm" onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <textarea rows={numRows} className="form-control" name="code" value={this.state.code} onChange={this.handleCodeChange} />
-          </div>
-          <FormatIndent indentSize={this.state.indentSize} handleIndentChange={this.handleIndentChange}/>
-          <input type="submit" className="btn btn-primary center-block" value="Format"/>
-        </form>
+        <FormatForm
+          code={this.state.code}
+          handleCodeChange={this.handleCodeChange}
+          indentSize={this.state.indentSize}
+          handleIndentChange={this.handleIndentChange}
+          handleSubmit={this.handleSubmit} />
         <FormattedCode formattedCode={this.state.formattedCode} />
       </div>
     )
+  }
+});
+
+var FormatForm = React.createClass({
+  render: function() {
+    var numRows = this.props.code.split('\n').length;
+
+    return (
+      <form className="formatForm" onSubmit={this.props.handleSubmit}>
+        <div className="form-group">
+          <textarea rows={numRows} className="form-control" name="code" value={this.props.code} onChange={this.props.handleCodeChange} />
+        </div>
+        <FormatIndent indentSize={this.props.indentSize} handleIndentChange={this.props.handleIndentChange}/>
+        <input type="submit" className="btn btn-primary center-block" value="Format"/>
+      </form>
+    );
   }
 });
 
@@ -145,6 +158,6 @@ var FormattedCode = React.createClass({
 });
 
 ReactDOM.render(
-  <FormatForm />,
+  <FormatBox />,
   document.getElementById('content')
 );
