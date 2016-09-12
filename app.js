@@ -24,22 +24,10 @@ var formatCode = function(code, indentSize) {
     // Apply edits in reverse on the existing text
     let result = text;
     for (let i = edits.length - 1; i >= 0; i--) {
-      let change = edits[i];
-      let head;
-      if (typeof change.span.start === "number") {
-        head = result.slice(0, change.span.start);
-      } else {
-        // backward compat for typescript-1.4.1
-        head = result.slice(0, change.span.start());
-      }
-      let tail;
-      if (typeof change.span.start === "number") {
-        tail = result.slice(change.span.start + change.span.length);
-      } else {
-        // backward compat for typescript-1.4.1
-        tail = result.slicechange.span.start() + change.span.length();
-      }
-      result = head + change.newText + tail;
+        let change = edits[i];
+        let head = result.slice(0, change.span.start);
+        let tail = result.slice(change.span.start + change.span.length)
+        result = head + change.newText + tail;
     }
     return result;
   };
